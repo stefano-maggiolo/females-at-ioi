@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Questionnaire on the female presence at the IOI">
+    <meta name="author" content="Stefano Maggiolo">
+
+    <title>Female presence at the IOI: questionnaire</title>
+
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+    <style>
+      body {
+        margin: 20px auto;
+        max-width: 600px;
+      }
+      h1 {
+        font-weight: bold;
+        margin: 50px 0 15px;
+        font-size:28px;
+      }
+      .program {
+        border: 1px solid black;
+        margin: 10px;
+        padding: 10px;
+        background-color: #e7e7e7;
+      }
+      label {
+        display: block;
+        font-weight: normal;
+        font-style: italic;
+      }
+      table {
+        width: 100%;
+      }
+      table img {
+        height: 90px;
+        padding: 2px 5px;
+      }
+      table input {
+        padding: 0 10px;
+      }
+      table tr {
+        height: 100px;
+      }
+      table tr.selected td {
+        background-color: #f7f7f7;
+      }
+      td {
+        padding: 5px 0 5px 10px;
+        border: 1px solid black;
+        background-color: #e7e7e7;
+      }
+    </style>
+
+    <script>
+
+var current = 0;
+
+var keybindings = function(ev) {
+  var focus = $(document.activeElement);
+  if (focus.hasClass('ignorekey')) {
+    return;
+  }
+  var elements = $($('tr')[current]).children('td').children('input');
+
+  if (ev.keyCode == 109) {
+    $(elements[0]).prop('checked', true);
+    current += 1;
+    selectCurrent(true);
+  } else if (ev.keyCode == 102) {
+    $(elements[1]).prop('checked', true);
+    current += 1;
+    selectCurrent(true);
+  } else if (ev.keyCode == 111) {
+    $(elements[2]).prop('checked', true);
+    current += 1;
+    selectCurrent(true);
+  } else if (ev.keyCode == 98) {
+    if (current > 0) {
+      current -= 1;
+    }
+    selectCurrent(true);
+  }
+};
+
+var selectCurrent = function(scroll) {
+  $('tr').removeClass('selected');
+  var tr = $($('tr')[current]);
+  tr.addClass('selected');
+  if (scroll == true) {
+    $('html, body').animate({
+      scrollTop: tr.offset().top
+    }, 100);
+  }
+}
+
+$(document).keypress(keybindings);
+$(document).ready(selectCurrent);
+$(document).ready(function() {
+  $('#email').focus();
+});
+
+var removeProgram = function(el) {
+  if (confirm("Are you sure you want to remove this program?")) {
+    $(el).parent().remove();
+  }
+};
+
+var addProgram = function(el) {
+  $(el).before(
+    '<div class="program">' +
+    '  <label>' +
+    '    <div>Start year of this program</div>' +
+    '    <input class="program-start ignorekey" type="text" size="20"></input>' +
+    '  </label>' +
+
+    '  <label>' +
+    '    <div>End year of this program (leave empty if still running)</div>' +
+    '    <input class="program-end ignorekey" type="text" size="20"></input>' +
+    '  </label>' +
+
+    '  <label>' +
+    '    <div>Description of the program</div>' +
+    '    <textarea class="program-desc ignorekey" rows="4" cols="60"></textarea>' +
+    '  </label>' +
+
+    '  <label>' +
+    '    <div>Outcome of the program</div>' +
+    '    <textarea class="program-outcome ignorekey" rows="4" cols="60"></textarea>' +
+    '  </label>' +
+
+    '  <label>' +
+    '    <div>Reason for discontinuation, if applicable</div>' +
+    '    <textarea class="program-reason ignorekey" rows="4" cols="60"></textarea>' +
+    '  </label>' +
+
+    '  <button onclick="removeProgram(this)">Remove this program</button>' +
+    '</div>');
+};
+
+var generate = function() {
+  var output = {};
+  output['email'] = $('#email').val();
+  output['otherinfo'] = $('#otherinfo').val();
+
+  output['programs'] = [];
+  var programs = $('.program');
+  for (var i = 0; i < programs.length; i++) {
+    var program = $(programs[i]);
+    var outProgram = {};
+    outProgram['start'] = program.find('.program-start').val();
+    outProgram['end'] = program.find('.program-end').val();
+    outProgram['desc'] = program.find('.program-desc').val();
+    outProgram['outcome'] = program.find('.program-outcome').val();
+    outProgram['reason'] = program.find('.program-reason').val();
+    output['programs'].push(outProgram);
+  }
+
+  output['people'] = [];
+  var trs = $('tr');
+  for (var i = 0; i < trs.length; i++) {
+    var tr = $(trs[i]);
+    var outPerson = {};
+    var name = tr.find('input:radio:checked').attr('name');
+    if (name) {
+      outPerson['name'] = name;
+      outPerson['gender'] = tr.find('input:radio:checked').val();
+      output['people'].push(outPerson);
+    }
+  }
+  $('#output').val(JSON.stringify(output));
+  $('#output').select();
+};
+
+$(document).ready(function() { addProgram($('#add-program')); });
+
+    </script>
+  </head>
+
+  <body>
+
+    <h1>About you</h1>
+    <label>
+      <div>An e-mail address in case I need to ask more questions</div>
+      <input id="email" class="ignorekey" type="email" size="60"></input>
+    </label>
+
+    <h1>About your country's team selection</h1>
+
+    <p>I am interested in knowing if the Olympic Committee for your
+    country has or had some program or rules acting on the female
+    presence at the Olympiad (both on a national and international
+    level.</p>
+
+    <p>Some examples of such programs or rules:</p>
+    <ul>
+      <li>a minimum/maximum number of female participants in the team
+        at IOI;</li>
+      <li>a minimum/maximum number of female participants at some
+        specific stage of the selection process;</li>
+      <li>programs to encourage female students to apply for the IOI
+        selections;</li>
+      <li>programs to expose female students to the IOIs, or to
+        computer science;</li>
+      <li>mentorship or training programs focused on female
+        students.</li>
+    </ul>
+
+    <p>For each of these programs, please add a section specifying the
+    years in which the program was in place, a brief description, and
+    the outcomes. If the program was discontinued, please add the
+    reason.</p>
+
+    <button id="add-program" onclick="addProgram(this)">Add another program</button>
+
+    <br/>
+    <br/>
+    <label>
+      <div>Any other relevant information?</div>
+      <textarea id="otherinfo" rows="4" cols="60"></textarea>
+    </label>
+
+    <h1>About your country's teams</h1>
+
+    <p>In each row of the following table there is a member of a
+    delegation of your country. Please select the gender for each of
+    them. To make this process faster, you can use these keys to
+    select a value for the highlighted person (after selecting the
+    first with your mouse):</p>
+    <ul>
+      <li><strong>m</strong> for male;
+      <li><strong>f</strong> for female;
+      <li><strong>o</strong> for other / not sure;
+      <li><strong>b</strong> to go back to the previous person.
+    </ul>
+
+    <table>
+      <tr>
+        <td>1992</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Hing Lam Chan</td>
+        <td>
+          <input type="radio" name="1992-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="1992-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="1992-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1992</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Shiu-Bong Teng</td>
+        <td>
+          <input type="radio" name="1992-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="1992-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="1992-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1992</td>
+        <td>Team</td>
+        <td></td>
+        <td>Hing Lun Chan</td>
+        <td>
+          <input type="radio" name="1992-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1992-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1992-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1992</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ping Fu Fung</td>
+        <td>
+          <input type="radio" name="1992-Team-3" value="m">Male</input></br>
+          <input type="radio" name="1992-Team-3" value="f">Female</input></br>
+          <input type="radio" name="1992-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1992</td>
+        <td>Team</td>
+        <td></td>
+        <td>Wing Kong Yip</td>
+        <td>
+          <input type="radio" name="1992-Team-4" value="m">Male</input></br>
+          <input type="radio" name="1992-Team-4" value="f">Female</input></br>
+          <input type="radio" name="1992-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1993</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ka Fai Yau</td>
+        <td>
+          <input type="radio" name="1993-Team-0" value="m">Male</input></br>
+          <input type="radio" name="1993-Team-0" value="f">Female</input></br>
+          <input type="radio" name="1993-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1994</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Hing Lam Chan</td>
+        <td>
+          <input type="radio" name="1994-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="1994-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="1994-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1994</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Shiu-Bong Teng</td>
+        <td>
+          <input type="radio" name="1994-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="1994-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="1994-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1994</td>
+        <td>Team</td>
+        <td></td>
+        <td>Hiu Ming Tse</td>
+        <td>
+          <input type="radio" name="1994-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1994-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1994-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1994</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ho Yan Chan</td>
+        <td>
+          <input type="radio" name="1994-Team-3" value="m">Male</input></br>
+          <input type="radio" name="1994-Team-3" value="f">Female</input></br>
+          <input type="radio" name="1994-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1994</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ka Fai Yau</td>
+        <td>
+          <input type="radio" name="1994-Team-4" value="m">Male</input></br>
+          <input type="radio" name="1994-Team-4" value="f">Female</input></br>
+          <input type="radio" name="1994-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1994</td>
+        <td>Team</td>
+        <td></td>
+        <td>Shek Fung Ng</td>
+        <td>
+          <input type="radio" name="1994-Team-5" value="m">Male</input></br>
+          <input type="radio" name="1994-Team-5" value="f">Female</input></br>
+          <input type="radio" name="1994-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1995</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi leong Kwok</td>
+        <td>
+          <input type="radio" name="1995-Team-0" value="m">Male</input></br>
+          <input type="radio" name="1995-Team-0" value="f">Female</input></br>
+          <input type="radio" name="1995-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1995</td>
+        <td>Team</td>
+        <td></td>
+        <td>Hoi-wai Wong</td>
+        <td>
+          <input type="radio" name="1995-Team-1" value="m">Male</input></br>
+          <input type="radio" name="1995-Team-1" value="f">Female</input></br>
+          <input type="radio" name="1995-Team-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1995</td>
+        <td>Team</td>
+        <td></td>
+        <td>Wing Cheong Chan</td>
+        <td>
+          <input type="radio" name="1995-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1995-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1995-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1995</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yung Chun Wan</td>
+        <td>
+          <input type="radio" name="1995-Team-3" value="m">Male</input></br>
+          <input type="radio" name="1995-Team-3" value="f">Female</input></br>
+          <input type="radio" name="1995-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1996</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Shiu-Bong Teng</td>
+        <td>
+          <input type="radio" name="1996-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="1996-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="1996-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1996</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Tak Wah Sin</td>
+        <td>
+          <input type="radio" name="1996-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="1996-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="1996-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1996</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Wing Poon</td>
+        <td>
+          <input type="radio" name="1996-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1996-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1996-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1996</td>
+        <td>Team</td>
+        <td></td>
+        <td>Hsi Chan</td>
+        <td>
+          <input type="radio" name="1996-Team-3" value="m">Male</input></br>
+          <input type="radio" name="1996-Team-3" value="f">Female</input></br>
+          <input type="radio" name="1996-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1996</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yuen Kei Ho</td>
+        <td>
+          <input type="radio" name="1996-Team-4" value="m">Male</input></br>
+          <input type="radio" name="1996-Team-4" value="f">Female</input></br>
+          <input type="radio" name="1996-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1996</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yung Chun Wan</td>
+        <td>
+          <input type="radio" name="1996-Team-5" value="m">Male</input></br>
+          <input type="radio" name="1996-Team-5" value="f">Female</input></br>
+          <input type="radio" name="1996-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1997</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Siu-Kai Ng</td>
+        <td>
+          <input type="radio" name="1997-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="1997-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="1997-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1997</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Tak Wah Sin</td>
+        <td>
+          <input type="radio" name="1997-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="1997-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="1997-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1997</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Wing Poon</td>
+        <td>
+          <input type="radio" name="1997-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1997-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1997-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1997</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chun-Ho Leung</td>
+        <td>
+          <input type="radio" name="1997-Team-3" value="m">Male</input></br>
+          <input type="radio" name="1997-Team-3" value="f">Female</input></br>
+          <input type="radio" name="1997-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1997</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tsz-Kit Lau</td>
+        <td>
+          <input type="radio" name="1997-Team-4" value="m">Male</input></br>
+          <input type="radio" name="1997-Team-4" value="f">Female</input></br>
+          <input type="radio" name="1997-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1997</td>
+        <td>Team</td>
+        <td></td>
+        <td>Wing-On Ching</td>
+        <td>
+          <input type="radio" name="1997-Team-5" value="m">Male</input></br>
+          <input type="radio" name="1997-Team-5" value="f">Female</input></br>
+          <input type="radio" name="1997-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1998</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chiu-Yuen Koo</td>
+        <td>
+          <input type="radio" name="1998-Team-0" value="m">Male</input></br>
+          <input type="radio" name="1998-Team-0" value="f">Female</input></br>
+          <input type="radio" name="1998-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1998</td>
+        <td>Team</td>
+        <td></td>
+        <td>Kin Fai Tam</td>
+        <td>
+          <input type="radio" name="1998-Team-1" value="m">Male</input></br>
+          <input type="radio" name="1998-Team-1" value="f">Female</input></br>
+          <input type="radio" name="1998-Team-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1998</td>
+        <td>Team</td>
+        <td></td>
+        <td>On-Sheung Yan</td>
+        <td>
+          <input type="radio" name="1998-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1998-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1998-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1998</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yau Chi Choi</td>
+        <td>
+          <input type="radio" name="1998-Team-3" value="m">Male</input></br>
+          <input type="radio" name="1998-Team-3" value="f">Female</input></br>
+          <input type="radio" name="1998-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1999</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Yung Tse</td>
+        <td>
+          <input type="radio" name="1999-Team-0" value="m">Male</input></br>
+          <input type="radio" name="1999-Team-0" value="f">Female</input></br>
+          <input type="radio" name="1999-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1999</td>
+        <td>Team</td>
+        <td></td>
+        <td>Kin Fai Tam</td>
+        <td>
+          <input type="radio" name="1999-Team-1" value="m">Male</input></br>
+          <input type="radio" name="1999-Team-1" value="f">Female</input></br>
+          <input type="radio" name="1999-Team-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>1999</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tsz Hang Stephen Ho</td>
+        <td>
+          <input type="radio" name="1999-Team-2" value="m">Male</input></br>
+          <input type="radio" name="1999-Team-2" value="f">Female</input></br>
+          <input type="radio" name="1999-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Hok Ling Ng</td>
+        <td>
+          <input type="radio" name="2000-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2000-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2000-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Yee Chi Mak</td>
+        <td>
+          <input type="radio" name="2000-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2000-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2000-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Pan Chan</td>
+        <td>
+          <input type="radio" name="2000-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2000-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2000-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Yung Tse</td>
+        <td>
+          <input type="radio" name="2000-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2000-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2000-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td>Team</td>
+        <td></td>
+        <td>Shuk Ting Cheng</td>
+        <td>
+          <input type="radio" name="2000-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2000-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2000-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2000</td>
+        <td>Team</td>
+        <td></td>
+        <td>Siu Lung Tam</td>
+        <td>
+          <input type="radio" name="2000-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2000-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2000-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2001</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Yung Tse</td>
+        <td>
+          <input type="radio" name="2001-Team-0" value="m">Male</input></br>
+          <input type="radio" name="2001-Team-0" value="f">Female</input></br>
+          <input type="radio" name="2001-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2001</td>
+        <td>Team</td>
+        <td></td>
+        <td>Koon-Ho Wong</td>
+        <td>
+          <input type="radio" name="2001-Team-1" value="m">Male</input></br>
+          <input type="radio" name="2001-Team-1" value="f">Female</input></br>
+          <input type="radio" name="2001-Team-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2001</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tung Ng</td>
+        <td>
+          <input type="radio" name="2001-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2001-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2001-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2001</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yue Kwen Justin Yip</td>
+        <td>
+          <input type="radio" name="2001-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2001-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2001-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2002</td>
+        <td>Team</td>
+        <td></td>
+        <td>Koon-Ho Wong</td>
+        <td>
+          <input type="radio" name="2002-Team-0" value="m">Male</input></br>
+          <input type="radio" name="2002-Team-0" value="f">Female</input></br>
+          <input type="radio" name="2002-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2002</td>
+        <td>Team</td>
+        <td></td>
+        <td>Man-Hon Chan</td>
+        <td>
+          <input type="radio" name="2002-Team-1" value="m">Male</input></br>
+          <input type="radio" name="2002-Team-1" value="f">Female</input></br>
+          <input type="radio" name="2002-Team-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2002</td>
+        <td>Team</td>
+        <td></td>
+        <td>Siu-Man Chan</td>
+        <td>
+          <input type="radio" name="2002-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2002-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2002-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2002</td>
+        <td>Team</td>
+        <td></td>
+        <td>Siu-On Chan</td>
+        <td>
+          <input type="radio" name="2002-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2002-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2002-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2003</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Man Liu</td>
+        <td>
+          <input type="radio" name="2003-Team-0" value="m">Male</input></br>
+          <input type="radio" name="2003-Team-0" value="f">Female</input></br>
+          <input type="radio" name="2003-Team-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2003</td>
+        <td>Team</td>
+        <td></td>
+        <td>Kwong Fai Tsang</td>
+        <td>
+          <input type="radio" name="2003-Team-1" value="m">Male</input></br>
+          <input type="radio" name="2003-Team-1" value="f">Female</input></br>
+          <input type="radio" name="2003-Team-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2003</td>
+        <td>Team</td>
+        <td></td>
+        <td>Shek Ming Sherman Lam</td>
+        <td>
+          <input type="radio" name="2003-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2003-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2003-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2003</td>
+        <td>Team</td>
+        <td></td>
+        <td>Sidney Hok Nang Fong</td>
+        <td>
+          <input type="radio" name="2003-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2003-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2003-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Lai Wa Cheng</td>
+        <td>
+          <input type="radio" name="2004-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2004-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2004-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Suk Ming Lai</td>
+        <td>
+          <input type="radio" name="2004-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2004-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2004-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ka Cheong Lui</td>
+        <td>
+          <input type="radio" name="2004-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2004-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2004-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td>Team</td>
+        <td></td>
+        <td>Kwong Fai Tsang</td>
+        <td>
+          <input type="radio" name="2004-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2004-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2004-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tak Chuen Cheung</td>
+        <td>
+          <input type="radio" name="2004-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2004-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2004-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2004</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tat Chi Chung</td>
+        <td>
+          <input type="radio" name="2004-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2004-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2004-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Kam-ming Tang</td>
+        <td>
+          <input type="radio" name="2005-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2005-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2005-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Po-yuk Chung</td>
+        <td>
+          <input type="radio" name="2005-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2005-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2005-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ka Cheong Lui</td>
+        <td>
+          <input type="radio" name="2005-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2005-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2005-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td>Team</td>
+        <td></td>
+        <td>Lik Yau Yip</td>
+        <td>
+          <input type="radio" name="2005-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2005-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2005-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ming-lam Leung</td>
+        <td>
+          <input type="radio" name="2005-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2005-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2005-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2005</td>
+        <td>Team</td>
+        <td></td>
+        <td>Sin-man Choi</td>
+        <td>
+          <input type="radio" name="2005-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2005-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2005-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Hoi Hung Ma</td>
+        <td>
+          <input type="radio" name="2006-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2006-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2006-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Man-Wai David Wu</td>
+        <td>
+          <input type="radio" name="2006-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2006-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2006-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chi Kit Lam</td>
+        <td>
+          <input type="radio" name="2006-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2006-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2006-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td>Team</td>
+        <td></td>
+        <td>Li Yu Chu</td>
+        <td>
+          <input type="radio" name="2006-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2006-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2006-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td>Team</td>
+        <td></td>
+        <td>Wing Yin Yim</td>
+        <td>
+          <input type="radio" name="2006-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2006-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2006-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2006</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yan Ting Hui</td>
+        <td>
+          <input type="radio" name="2006-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2006-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2006-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Hoi Hung Ma</td>
+        <td>
+          <input type="radio" name="2007-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2007-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2007-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Po Wa Yan</td>
+        <td>
+          <input type="radio" name="2007-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2007-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2007-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td>Team</td>
+        <td></td>
+        <td>Cheuk Ting Li</td>
+        <td>
+          <input type="radio" name="2007-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2007-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2007-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td>Team</td>
+        <td></td>
+        <td>Lik Yau Yip</td>
+        <td>
+          <input type="radio" name="2007-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2007-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2007-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ming Fung Philip Tai</td>
+        <td>
+          <input type="radio" name="2007-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2007-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2007-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2007</td>
+        <td>Team</td>
+        <td></td>
+        <td>Yan Ting Hui</td>
+        <td>
+          <input type="radio" name="2007-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2007-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2007-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Sze Ming Lui</td>
+        <td>
+          <input type="radio" name="2008-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2008-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2008-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Wai Tung Chung</td>
+        <td>
+          <input type="radio" name="2008-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2008-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2008-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td>Team</td>
+        <td></td>
+        <td>Cheuk Ting Li</td>
+        <td>
+          <input type="radio" name="2008-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2008-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2008-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/qocj7s7mda.png" /></td>
+        <td>Man Hin Jeffrey Hon</td>
+        <td>
+          <input type="radio" name="2008-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2008-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2008-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td>Team</td>
+        <td></td>
+        <td>Man Lok Wong</td>
+        <td>
+          <input type="radio" name="2008-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2008-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2008-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2008</td>
+        <td>Team</td>
+        <td></td>
+        <td>Ming Fung Philip Tai</td>
+        <td>
+          <input type="radio" name="2008-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2008-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2008-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td>Leaders</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/unep78w7zs.png" /></td>
+        <td>Man Kit Leung</td>
+        <td>
+          <input type="radio" name="2009-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2009-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2009-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td>Leaders</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/bnn1lks2vj.png" /></td>
+        <td>Wing Sze Cheung</td>
+        <td>
+          <input type="radio" name="2009-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2009-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2009-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/2459dsqhoj.png" /></td>
+        <td>Chun Chi Tsang</td>
+        <td>
+          <input type="radio" name="2009-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2009-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2009-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/qocj7s7mda.png" /></td>
+        <td>Man Hin Jeffrey Hon</td>
+        <td>
+          <input type="radio" name="2009-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2009-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2009-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/mgdqhz358x.png" /></td>
+        <td>Pak Hay Chan</td>
+        <td>
+          <input type="radio" name="2009-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2009-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2009-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2009</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/tfe57khrtd.png" /></td>
+        <td>Wai Hon Law</td>
+        <td>
+          <input type="radio" name="2009-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2009-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2009-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Atkin Lui</td>
+        <td>
+          <input type="radio" name="2010-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2010-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2010-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Che-hung Danny Cheng</td>
+        <td>
+          <input type="radio" name="2010-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2010-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2010-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td>Team</td>
+        <td></td>
+        <td>Chak Fai Yuen</td>
+        <td>
+          <input type="radio" name="2010-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2010-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2010-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/qocj7s7mda.png" /></td>
+        <td>Man Hin Jeffrey Hon</td>
+        <td>
+          <input type="radio" name="2010-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2010-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2010-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td>Team</td>
+        <td></td>
+        <td>Man Lok Wong</td>
+        <td>
+          <input type="radio" name="2010-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2010-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2010-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2010</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tak Hei Yu</td>
+        <td>
+          <input type="radio" name="2010-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2010-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2010-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Hoi Hung Ma</td>
+        <td>
+          <input type="radio" name="2011-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2011-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2011-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Wing Kin Lo</td>
+        <td>
+          <input type="radio" name="2011-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2011-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2011-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/2459dsqhoj.png" /></td>
+        <td>Chun Chi Tsang</td>
+        <td>
+          <input type="radio" name="2011-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2011-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2011-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td>Team</td>
+        <td></td>
+        <td>Man Lok Wong</td>
+        <td>
+          <input type="radio" name="2011-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2011-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2011-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/mgdqhz358x.png" /></td>
+        <td>Pak Hay Chan</td>
+        <td>
+          <input type="radio" name="2011-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2011-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2011-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2011</td>
+        <td>Team</td>
+        <td></td>
+        <td>Tsun Au Yeung</td>
+        <td>
+          <input type="radio" name="2011-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2011-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2011-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td>Leaders</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/1wd5jae2mm.png" /></td>
+        <td>Gong Poon</td>
+        <td>
+          <input type="radio" name="2012-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2012-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2012-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Tat Chi Chung</td>
+        <td>
+          <input type="radio" name="2012-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2012-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2012-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/cq0uyl22by.png" /></td>
+        <td>Chun Chi Tsang</td>
+        <td>
+          <input type="radio" name="2012-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2012-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2012-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/xxo7reayfm.png" /></td>
+        <td>Chun Yin Sampson Lee</td>
+        <td>
+          <input type="radio" name="2012-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2012-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2012-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/ri7xe57cfm.png" /></td>
+        <td>Pak Hay Chan</td>
+        <td>
+          <input type="radio" name="2012-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2012-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2012-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2012</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/yjkhbn283n.png" /></td>
+        <td>Wai Pan Yik</td>
+        <td>
+          <input type="radio" name="2012-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2012-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2012-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Chi Wing Yu</td>
+        <td>
+          <input type="radio" name="2013-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2013-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2013-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td>Leaders</td>
+        <td></td>
+        <td>Ka Man May Chan</td>
+        <td>
+          <input type="radio" name="2013-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2013-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2013-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/xxo7reayfm.png" /></td>
+        <td>Chun Yin Sampson Lee</td>
+        <td>
+          <input type="radio" name="2013-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2013-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2013-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/chz86a34he.png" /></td>
+        <td>Kam Chuen Tung</td>
+        <td>
+          <input type="radio" name="2013-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2013-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2013-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/znragntgvv.png" /></td>
+        <td>Lik Hang Poon</td>
+        <td>
+          <input type="radio" name="2013-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2013-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2013-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2013</td>
+        <td>Team</td>
+        <td></td>
+        <td>Pak Nam Hui</td>
+        <td>
+          <input type="radio" name="2013-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2013-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2013-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td>Leaders</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/1wd5jae2mm.png" /></td>
+        <td>Gong Poon</td>
+        <td>
+          <input type="radio" name="2014-Leaders-0" value="m">Male</input></br>
+          <input type="radio" name="2014-Leaders-0" value="f">Female</input></br>
+          <input type="radio" name="2014-Leaders-0" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td>Leaders</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/9gec57eii8.png" /></td>
+        <td>Hau Chung Oa Yang</td>
+        <td>
+          <input type="radio" name="2014-Leaders-1" value="m">Male</input></br>
+          <input type="radio" name="2014-Leaders-1" value="f">Female</input></br>
+          <input type="radio" name="2014-Leaders-1" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/chz86a34he.png" /></td>
+        <td>Kam Chuen Tung</td>
+        <td>
+          <input type="radio" name="2014-Team-2" value="m">Male</input></br>
+          <input type="radio" name="2014-Team-2" value="f">Female</input></br>
+          <input type="radio" name="2014-Team-2" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/znragntgvv.png" /></td>
+        <td>Lik Hang Poon</td>
+        <td>
+          <input type="radio" name="2014-Team-3" value="m">Male</input></br>
+          <input type="radio" name="2014-Team-3" value="f">Female</input></br>
+          <input type="radio" name="2014-Team-3" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/so1tveqzil.png" /></td>
+        <td>Ting Fung Lau</td>
+        <td>
+          <input type="radio" name="2014-Team-4" value="m">Male</input></br>
+          <input type="radio" name="2014-Team-4" value="f">Female</input></br>
+          <input type="radio" name="2014-Team-4" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+      <tr>
+        <td>2014</td>
+        <td>Team</td>
+        <td><img src="http://stats.ioinformatics.org/img/photos/gcsq5oh2xw.png" /></td>
+        <td>Wai Pan Yik</td>
+        <td>
+          <input type="radio" name="2014-Team-5" value="m">Male</input></br>
+          <input type="radio" name="2014-Team-5" value="f">Female</input></br>
+          <input type="radio" name="2014-Team-5" value="o">Other / not sure</input></br>
+        </td>
+      </tr>
+    </table>
+
+    <h1>Send the information</h1>
+
+    <p>Last step! Please click on "Generate" and send me an email at
+    <a href="mailto:s.maggiolo@gmail.com?subject=Questionnaire for HKG" target="_blank">
+      s.maggiolo@gmail.com
+    </a>
+    copying and pasting or attaching the content of the following
+    area. The output will be pre-selected, so Ctrl-C/cmd-C is enough
+    to copy everything.</p>
+
+    <button onclick="generate()">Generate</button><br/>
+    <textarea id="output" class="ignorekey" rows="10" cols="60"></textarea>
+
+  </body>
+</html>
