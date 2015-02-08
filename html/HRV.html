@@ -162,6 +162,13 @@ var generate = function() {
     output['programs'].push(outProgram);
   }
 
+  output['first-total'] = $('#first-total').val();
+  output['first-perc'] = $('#first-perc').val();
+  output['nationals-total'] = $('#nationals-total').val();
+  output['nationals-perc'] = $('#nationals-perc').val();
+  output['training-total'] = $('#training-total').val();
+  output['training-perc'] = $('#training-perc').val();
+
   output['people'] = [];
   var trs = $('tr');
   for (var i = 0; i < trs.length; i++) {
@@ -184,6 +191,15 @@ $(document).ready(function() { addProgram($('#add-program')); });
   </head>
 
   <body>
+
+    <!--
+    <strong style="color: red">
+      Someone already completed the questionnaire for this
+      country. Feel free to complete the first section again to give a
+      different perspective, but there is no need to fill the genders
+      of the team members.
+    </strong>
+    -->
 
     <h1>About you</h1>
     <label>
@@ -220,7 +236,69 @@ $(document).ready(function() { addProgram($('#add-program')); });
     <button id="add-program" onclick="addProgram(this)">Add another program</button>
 
     <br/>
+    <hr/>
     <br/>
+
+    <p>The following are some questions about the number of students
+    taking part in your country's IOI selections. Please answer with
+    the average of the last three years.</p>
+
+    <p>The questions are about total number of participants and female
+    percentage at three stages of the selection:</p>
+    <ul>
+      <li>at the very beginning: the first competition, usually
+      distributed in the schools throughout the country;</li>
+      <li>at the "national IOI" stage: usually an onsite (but possibly
+      online) contest with tens or low hundreds of participants, that
+      might or might not assign a title;</li>
+      <li>at the training stage: when students receive (usually
+      onsite, but also online) dedicated training, usually from
+      previous contestants, or experts in the field.</li>
+    </ul>
+
+    <p>Feel free to leave blank an answer if you cannot provide a good
+    estimate.</p>
+
+    <strong>First selection</strong>
+
+    <label>
+      <div>How many students in total take part?</div>
+      <input id="first-total" class="ignorekey" type="text" size="60"></input>
+    </label>
+
+    <label>
+      <div>What is the percentage of female participants (0-100)?</div>
+      <input id="first-perc" class="ignorekey" type="text" size="60"></input>
+    </label>
+
+    <strong>National IOI</strong>
+
+    <label>
+      <div>How many students in total take part?</div>
+      <input id="nationals-total" class="ignorekey" type="text" size="60"></input>
+    </label>
+
+    <label>
+      <div>What is the percentage of female participants (0-100)?</div>
+      <input id="nationals-perc" class="ignorekey" type="text" size="60"></input>
+    </label>
+
+    <strong>Training</strong>
+
+    <label>
+      <div>How many students in total take part?</div>
+      <input id="training-total" class="ignorekey" type="text" size="60"></input>
+    </label>
+
+    <label>
+      <div>What is the percentage of female participants (0-100)?</div>
+      <input id="training-perc" class="ignorekey" type="text" size="60"></input>
+    </label>
+
+    <br/>
+    <hr/>
+    <br/>
+
     <label>
       <div>Any other relevant information?</div>
       <textarea id="otherinfo" rows="4" cols="60"></textarea>
