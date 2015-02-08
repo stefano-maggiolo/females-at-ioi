@@ -355,7 +355,7 @@ $(document).ready(function() { addProgram($('#add-program')); });
 
     <label>
       <div>Any other relevant information?</div>
-      <textarea id="otherinfo" rows="4" cols="60"></textarea>
+      <textarea id="otherinfo" class="ignorekey" rows="4" cols="60"></textarea>
     </label>
 
     <h1>About your country's teams</h1>
